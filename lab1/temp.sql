@@ -59,12 +59,12 @@ CREATE TABLE Replacement_Orders (
 )
 
 CREATE TABLE Suppliers (
-    supplier_name CHAR(50) PRIMARY KEY,
-    CIF CHAR(15) UNIQUE NOT NULL,
-    salesperson_fullname CHAR(50) NOT NULL,
-    email CHAR(50) UNIQUE NOT NULL,
-    phone CHAR(15) UNIQUE NOT NULL,
-    address CHAR(100) NOT NULL,
+    supplier_name CHAR(35) PRIMARY KEY,
+    CIF CHAR(10) UNIQUE NOT NULL,
+    salesperson_fullname CHAR(90) NOT NULL,
+    email CHAR(60) UNIQUE NOT NULL,
+    phone CHAR(9) UNIQUE NOT NULL,
+    address VARCHAR(255) NOT NULL,
     CONSTRAINT fk_address FOREIGN KEY (address) REFERENCES Addresses(addresses_key),
 );
 
@@ -96,17 +96,17 @@ CREATE TABLE Deliveries(
 );
 
 CREATE TABLE Addresses(
-    street_num NUMBER(16) NOT NULL,
+    street_address CHAR(120) NOT NULL,
     thoroughfare_type CHAR(15) NOT NULL, --pl, st, ave, etc.
-    zip CHAR(10) NOT NULL,
-    city VARCHAR(100) NOT NULL, --accounting for long city names
-    country CHAR(56) NOT NULL,
+    zip CHAR(5) NOT NULL,
+    city VARCHAR(45) NOT NULL, --accounting for long city names
+    country CHAR(45) NOT NULL,
     addresses_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(street_num, '-', thoroughfare_type, '-', zip, '-', city, '-', country)) STORED,
-    gateway NUMBER,
-    block NUMBER,
-    stairs_id NUMBER,
-    floor NUMBER(3),
-    door CHAR(4),
+    gateway CHAR(3),
+    block CHAR(1),
+    stairs_id CHAR(2),
+    floor NUMBER(7),
+    door CHAR(1),
     client CHAR(50),
     CONSTRAINT fk_client FOREIGN KEY (client) REFERENCES CLIENTS(username),
     PRIMARY KEY (addresses_key)

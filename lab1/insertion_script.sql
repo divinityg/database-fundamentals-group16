@@ -1,7 +1,7 @@
 --insertion script for lab 1
 INSERT INTO Products (product, coffea, varietal, origin, roasting, decaf)
 SELECT DISTINCT PRODUCT, COFFEA, VARIETAL, ORIGIN, ROASTING, DECAF
-FROM dbf16.catalogue;
+FROM dbf10.catalogue;
 
 INSERT INTO Formats (format_id, roasting, is_prepared, is_volume, packaging)
 SELECT DISTINCT ROWNUM, ROASTING, 'FALSE' as is_prepared, 'TRUE' as is_volume, PACKAGING

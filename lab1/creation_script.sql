@@ -2,17 +2,17 @@
 CREATE TABLE Orders (
     reference VARCHAR(255),
     customer_order VARCHAR(255),
-    orderss_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(reference, '-', customer_order)) STORED,
+    orders_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(reference, '-', customer_order)) STORED,
     quantity NUMBER,
     unit_retail_price NUMBER,
     total NUMBER,
-    PRIMARY KEY (reference, customer_order),
     CONSTRAINT fk_reference FOREIGN KEY (reference) REFERENCES `References`(references_key),
-    CONSTRAINT fk_customer_order FOREIGN KEY (customer_order) REFERENCES `References`(customer_order_key)
+    CONSTRAINT fk_customer_order FOREIGN KEY (customer_order) REFERENCES `References`(customer_order_key),
+    PRIMARY KEY (orders_key)
 );
 
 CREATE TABLE Products (
-    product_name CHAR(50) UNIQUE NOT NULL,
+    product_name CHAR(50) PRIMARY KEY NOT NULL,
     coffea_species CHAR(20) NOT NULL,
     varietal CHAR(30) NOT NULL,
     origin CHAR(15) NOT NULL,
@@ -40,17 +40,21 @@ CREATE TABLE `References` ( --references is a keyword so the backticks are neces
     max_stock NUMBER DEFAULT 10
     product CHAR(50),
     CONSTRAINT fk_product FOREIGN KEY (product) REFERENCES Products(product_name),
-    PRIMARY KEY (barcode, packaging_description, retail_price)
+    PRIMARY KEY (references_key)
 );
 
 CREATE TABLE Replacement_Orders (
-    state --what is this, need to replace name since its a command
-    reference --again still don't know how to point to references
+    `state` CHAR(50), --can be draft, placed, or fulfilled  
+    reference VARCHAR(255),
+    replacement_orders_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(`state`, '-', reference)) STORED,
     rep_order_date DATE,
     units NUMBER,
     receiving_date DATE, 
-    payment, --what is this, would it need to connect to cc? 
-    supplier --point to suppliers
+    payment NUMBER, --total cost of replacement (no need to connect to cc's because the db owner will be paying)
+    supplier CHAR(50), --point to suppliers
+    CONSTRAINT fk_reference FOREIGN KEY (reference) REFERENCES `References`(references_key),
+    CONSTRAINT fk_supplier FOREIGN KEY (supplier) REFERENCES Suppliers(supplier_name),
+    PRIMARY KEY (replacement_orders_key)
 )
 
 CREATE TABLE Suppliers (
@@ -59,82 +63,86 @@ CREATE TABLE Suppliers (
     salesperson_fullname CHAR(50),
     email CHAR(50) UNIQUE,
     phone CHAR(15) UNIQUE,
-    address CHAR(100)
+    address CHAR(100),
+    CONSTRAINT fk_address FOREIGN KEY (address) REFERENCES Addresses(addresses_key),
 );
 
 CREATE TABLE Customer_Orders(
-    contact, --unknown what this is
-    cust_order_date DATE,
-    delivery, --point to deliveries
-    payment_type, --unknown what this is
-    billing_address, --is this the same as address? points to it on form
+    contact CHAR(50), --will either be a phone number or email
+    is_email BOOLEAN,
+    order_date DATE,
+    delivery VARCHAR(255), --point to deliveries
+    customer_orders_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(contact, '-', order_date, '-', delivery)) STORED,
+    payment_type BOOLEAN, --true if paying with credit card
+    billing_address VARCHAR(255), --may or may not be the same as the address associated witht he delivery
     payment_date DATE,
-    total NUMBER, --is the formatting different for doubles?
-    credit_card, --points to credit cards
+    total NUMBER,
+    credit_card NUMBER(16), --points to credit cards
+    CONSTRAINT fk_delivery FOREIGN KEY (delivery) REFERENCES Deliveries(deliveries_key),
+    CONSTRAINT fk_billing_address FOREIGN KEY (billing_address) REFERENCES Addresses(addresses_key),
+    CONSTRAINT fk_credit_card FOREIGN KEY (credit_card) REFERENCES Credit_Cards(card_number),
+    PRIMARY KEY (customer_orders_key)
 );
 
 CREATE TABLE Deliveries(
-    address, --needs to point to addresses
-    delivery_date DATE
-);
-
-CREATE TABLE Clients (
-    client_id NUMBER PRIMARY KEY,
-    name CHAR(50),
-    surname CHAR(50),
-    email CHAR(50) UNIQUE,
-    phone CHAR(15) UNIQUE,
-    address CHAR(100),
-    username CHAR(30) UNIQUE,
-    password CHAR(30),
-    registration_date DATE
+    address VARCHAR(255), --point to addresses
+    delivery_date DATE,
+    customer_orders_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(address, '-', delivery_date)) STORED,
+    CONSTRAINT fk_address FOREIGN KEY (address) REFERENCES Addresses(addresses_key),
+    PRIMARY KEY (deliveries_key)
 );
 
 CREATE TABLE Addresses(
-    stree_num NUMBER(16),
-    thoroughfare_type, --i forgot what this is so idk the var type
+    street_num NUMBER(16),
+    thoroughfare_type CHAR(15), --pl, st, ave, etc.
     zip CHAR(10),
-    city CHAR, --idk what the min should be
+    city VARCHAR(100), --accounting for long city names
     country CHAR(56),
-    gateway NULL, --forgot var type
-    block NULL, --forgot var type and need to change var name
-    stairs_id NULL, --is this a number
-    floor NUMBER(3) NULL,
-    door CHAR(4) NULL,
-    client NULL -- need help pointing
-);
-
-CREATE TABLE Credit_Cards(
-    card_number NUMBER(16),
-    company CHAR(30),
-    cardholder CHAR(30),
-    exp_date CHAR(5), --char max 5 char because its month/year
-    address, --pointer help
-    client --pointer help
-);
-
-CREATE TABLE Orders (
-    order_id NUMBER PRIMARY KEY,
-    client_id NUMBER,
-    order_date DATE,
-    order_time TIMESTAMP,
-    delivery_date DATE,
-    delivery_address CHAR(100),
-    payment_type CHAR(20),
-    CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES Clients(client_id)
+    addresses_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(street_num, '-', thoroughfare_type, '-', zip, '-', city, '-', country)) STORED,
+    gateway NUMBER,
+    block NUMBER,
+    stairs_id NUMBER,
+    floor NUMBER(3),
+    door CHAR(4),
+    client CHAR(50),
+    CONSTRAINT fk_client FOREIGN KEY (client) REFERENCES CLIENTS(username),
+    PRIMARY KEY (addresses_key)
 );
 
 CREATE TABLE Comments (
-    comment_id NUMBER PRIMARY KEY,
-    client_id NUMBER,
-    product, --need help pointing
-    format NULL, --need help pointing
-    post_date DATE,
-    post_time TIMESTAMP,
-    title CHAR(50),
-    comment_text VARCHAR2(2000),
-    score NUMBER(1),
+    comment_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    client_id CHAR(30),
+    product CHAR(50),
+    format NUMBER,
+    text VARCHAR2(2000),
+    rating NUMBER(1),
     likes NUMBER(9),
-    CONSTRAINT fk_comment_client FOREIGN KEY (client_id) REFERENCES Clients(client_id),
-    CONSTRAINT fk_comment_product FOREIGN KEY (barcode) REFERENCES Products(barcode)
+    CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES Clients(username),
+    CONSTRAINT fk_product FOREIGN KEY (product) REFERENCES Products(product_name),
+    CONSTRAINT fk_format FOREIGN KEY (format) REFERENCES Formats(format_id)
+);
+
+CREATE TABLE Credit_Cards(
+    card_number NUMBER(16) PRIMARY KEY,
+    company CHAR(30),
+    cardholder CHAR(30),
+    exp_date CHAR(5), --char max 5 char because its month/year
+    address VARCHAR(255),
+    client CHAR(30),
+    CONSTRAINT fk_address FOREIGN KEY (address) REFERENCES Addresses(addresses_key),
+    CONSTRAINT fk_client FOREIGN KEY (client) REFERENCES Clients(username)
+);
+
+CREATE TABLE Clients (
+    username CHAR(30) PRIMARY KEY,
+    password CHAR(30),
+    name CHAR(50),
+    surname CHAR(50),
+    surname2 CHAR(50),
+    email CHAR(50) UNIQUE,
+    phone NUMBER(15) UNIQUE,
+    contact_preference CHAR(50), --email, sms, whatsapp, etc.
+    registration_date DATE,
+    voucher NUMBER CHECK (stock >= 0 AND stock <= 10),
+    voucher_exp_date DATE
 );

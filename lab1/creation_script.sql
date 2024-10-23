@@ -1,32 +1,46 @@
 -- enter code for sql database here
+CREATE TABLE Orders (
+    reference VARCHAR(255),
+    customer_order VARCHAR(255),
+    orderss_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(reference, '-', customer_order)) STORED,
+    quantity NUMBER,
+    unit_retail_price NUMBER,
+    total NUMBER,
+    PRIMARY KEY (reference, customer_order),
+    CONSTRAINT fk_reference FOREIGN KEY (reference) REFERENCES `References`(references_key),
+    CONSTRAINT fk_customer_order FOREIGN KEY (customer_order) REFERENCES `References`(customer_order_key)
+);
+
 CREATE TABLE Products (
-    barcode CHAR(15) PRIMARY KEY NOT NULL,
     product_name CHAR(50) UNIQUE NOT NULL,
     coffea_species CHAR(20) NOT NULL,
     varietal CHAR(30) NOT NULL,
     origin CHAR(15) NOT NULL,
     roasting_type CHAR(10) NOT NULL,
     is_decaf BOOLEAN NOT NULL,
-    format --how do you point to formats
+    format NUMBER,
+    CONSTRAINT fk_format FOREIGN KEY (format) REFERENCES Formats(id)
 );
 
 CREATE TABLE Formats(
     format_id NUMBER PRIMARY KEY NOT NULL,
-    product_name CHAR(50) UNIQUE NOT NULL,
     composition CHAR(25) NOT NULL,
     is_prepared BOOLEAN NOT NULL, --capsules or prepared
     is_volume BOOLEAN NOT NULL, --weight or volume
     packaging_description NUMBER NOT NULL, --'each format in turn can be packaged differing amounts' == 'packaging description (amount of product)
 );
 
-CREATE TABLE References (
-    barcode CHAR(15) PRIMARY KEY,
-    packaging_description NUMBER, --connects to Format
-    retail_price NUMBER(8,2), --connects to Products
+CREATE TABLE `References` ( --references is a keyword so the backticks are necessary
+    barcode CHAR(15),
+    packaging_description NUMBER,
+    retail_price NUMBER,
+    references_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(barcode, '-', packaging_description, '-', retail_price)) STORED,
     cur_stock NUMBER,
-    min_stock NUMBER(5) DEFAULT 5, 
-    max_stock NUMBER(5) DEFAULT 10
-    product  --how do you point to products
+    min_stock NUMBER DEFAULT 5, 
+    max_stock NUMBER DEFAULT 10
+    product CHAR(50),
+    CONSTRAINT fk_product FOREIGN KEY (product) REFERENCES Products(product_name),
+    PRIMARY KEY (barcode, packaging_description, retail_price)
 );
 
 CREATE TABLE Replacement_Orders (

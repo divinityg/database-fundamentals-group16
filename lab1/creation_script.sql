@@ -62,6 +62,7 @@ CREATE TABLE Suppliers (
     CIF CHAR(15) UNIQUE NOT NULL,
     salesperson_fullname CHAR(50) NOT NULL,
     email CHAR(50) UNIQUE NOT NULL,
+    CONSTRAINT chk_email_contains_at CHECK (INSTR(email, '@') > 0), -- Ensure email contains '@'
     phone CHAR(15) UNIQUE NOT NULL,
     address CHAR(100) NOT NULL,
     CONSTRAINT fk_address FOREIGN KEY (address) REFERENCES Addresses(addresses_key),
@@ -147,6 +148,7 @@ CREATE TABLE Clients (
     surname CHAR(50) NOT NULL,
     surname2 CHAR(50),
     email CHAR(50) UNIQUE,
+    CONSTRAINT chk_email_contains_at CHECK (INSTR(email, '@') > 0), -- Ensure email contains '@'
     phone NUMBER(15) UNIQUE,
     contact_preference CHAR(50), --email, sms, whatsapp, etc.
     registration_date DATE NOT NULL,

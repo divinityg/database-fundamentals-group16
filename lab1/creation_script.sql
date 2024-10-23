@@ -24,16 +24,16 @@ CREATE TABLE References (
     retail_price NUMBER(8,2), --connects to Products
     cur_stock NUMBER,
     min_stock NUMBER(5) DEFAULT 5, 
-    max_stock NUMBER(5) DEFAULT 10
+    max_stock NUMBER(5) DEFAULT 10
     product  --how do you point to products
 );
 
 CREATE TABLE Replacement_Orders (
     state --what is this, need to replace name since its a command
     reference --again still don't know how to point to references
-    order_date CHAR(14),
+    rep_order_date DATE,
     units NUMBER,
-    receiving_date CHAR(14), 
+    receiving_date DATE, 
     payment, --what is this, would it need to connect to cc? 
     supplier --point to suppliers
 )
@@ -44,11 +44,18 @@ CREATE TABLE Suppliers (
     salesperson_fullname CHAR(50),
     email CHAR(50) UNIQUE,
     phone CHAR(15) UNIQUE,
-    address CHAR(100)
+    address CHAR(100)
 );
 
 CREATE TABLE Customer_Orders(
-
+    contact, --unknown what this is
+    cust_order_date DATE,
+    delivery, --point to deliveries
+    payment_type, --unknown what this is
+    billing_address, --is this the same as address? points to it on form
+    payment_date DATE,
+    total NUMBER, --is the formatting different for doubles?
+    credit_card, --points to credit cards
 );
 
 CREATE TABLE Deliveries(
@@ -97,6 +104,5 @@ CREATE TABLE Orders (
     delivery_date DATE,
     delivery_address CHAR(100),
     payment_type CHAR(20),
-    payment_date DATE,
     CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES Clients(client_id)
 );

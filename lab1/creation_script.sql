@@ -12,32 +12,32 @@ CREATE TABLE Orders (
 );
 
 CREATE TABLE Products (
-    product_name CHAR(50) PRIMARY KEY NOT NULL,
-    coffea_species CHAR(20) NOT NULL,
+    product CHAR(50) PRIMARY KEY NOT NULL,
+    coffea CHAR(20) NOT NULL,
     varietal CHAR(30) NOT NULL,
     origin CHAR(15) NOT NULL,
-    roasting_type CHAR(10) NOT NULL,
-    is_decaf BOOLEAN NOT NULL,
-    format NUMBER NOT NULL,
+    roasting CHAR(10) NOT NULL,
+    decaf CHAR(12) NOT NULL,
+    format CHAR(20) NOT NULL,
     CONSTRAINT fk_format FOREIGN KEY (format) REFERENCES Formats(id)
 );
 
 CREATE TABLE Formats(
     format_id NUMBER PRIMARY KEY NOT NULL,
-    composition CHAR(25) NOT NULL,
+    roasting CHAR(10) NOT NULL,
     is_prepared BOOLEAN NOT NULL, --capsules or prepared
     is_volume BOOLEAN NOT NULL, --weight or volume
-    packaging_description NUMBER NOT NULL, --'each format in turn can be packaged differing amounts' == 'packaging description (amount of product)
+    packaging CHAR(15) NOT NULL, --'each format in turn can be packaged differing amounts' == 'packaging description (amount of product)
 );
 
 CREATE TABLE `References` ( --references is a keyword so the backticks are necessary
     barcode CHAR(15) NOT NULL,
-    packaging_description NUMBER NOT NULL,
-    retail_price NUMBER NOT NULL,
+    packaging CHAR(15) NOT NULL,
+    retail_price CHAR(14) NOT NULL,
     references_key VARCHAR(255) GENERATED ALWAYS AS (CONCAT(barcode, '-', packaging_description, '-', retail_price)) STORED,
-    cur_stock NUMBER NOT NULL,
-    min_stock NUMBER DEFAULT 5 NOT NULL, 
-    max_stock NUMBER DEFAULT 10 NOT NULL,
+    cur_stock CHAR(5) NOT NULL,
+    min_stock CHAR(5) DEFAULT 5 NOT NULL, 
+    max_stock CHAR(5) DEFAULT 10 NOT NULL,
     product CHAR(50) NOT NULL,
     CONSTRAINT fk_product FOREIGN KEY (product) REFERENCES Products(product_name),
     PRIMARY KEY (references_key)
@@ -51,7 +51,7 @@ CREATE TABLE Replacement_Orders (
     units NUMBER NOT NULL,
     receiving_date DATE NOT NULL, 
     payment NUMBER NOT NULL, --total cost of replacement (no need to connect to cc's because the db owner will be paying)
-    supplier CHAR(50) NOT NULL, --point to suppliers
+    supplier CHAR(35) NOT NULL, --point to suppliers
     CONSTRAINT fk_reference FOREIGN KEY (reference) REFERENCES `References`(references_key),
     CONSTRAINT fk_supplier FOREIGN KEY (supplier) REFERENCES Suppliers(supplier_name),
     PRIMARY KEY (replacement_orders_key)
@@ -115,20 +115,25 @@ CREATE TABLE Comments (
     comment_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     client_id CHAR(30),
     product CHAR(50) NOT NULL,
+    barcode CHAR(15),
+    post_date CHAR(14),
+    post_time CHAR(14),
     format NUMBER,
-    text VARCHAR2(2000) NOT NULL,
-    rating NUMBER(1) NOT NULL,
-    likes NUMBER(9) NOT NULL,
+    title CHAR(50) NOT NULL,
+    text CHAR(2000) NOT NULL,
+    score CHAR(1) NOT NULL,
+    likes CHAR(9) NOT NULL,
+    endorsed CHAR(50),
     CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES Clients(username),
     CONSTRAINT fk_product FOREIGN KEY (product) REFERENCES Products(product_name),
     CONSTRAINT fk_format FOREIGN KEY (format) REFERENCES Formats(format_id)
 );
 
 CREATE TABLE Credit_Cards(
-    card_number NUMBER(16) PRIMARY KEY NOT NULL,
-    company CHAR(30) NOT NULL,
-    cardholder CHAR(30) NOT NULL,
-    exp_date CHAR(5) NOT NULL, --char max 5 char because its month/year
+    card_number CHAR(20) PRIMARY KEY NOT NULL,
+    card_company CHAR(15) NOT NULL,
+    card_holder CHAR(30) NOT NULL,
+    card_expiratn CHAR(7) NOT NULL, --char max 5 char because its month/year
     address VARCHAR(255) NOT NULL,
     client CHAR(30),
     CONSTRAINT fk_address FOREIGN KEY (address) REFERENCES Addresses(addresses_key),
@@ -137,7 +142,7 @@ CREATE TABLE Credit_Cards(
 
 CREATE TABLE Clients (
     username CHAR(30) PRIMARY KEY NOT NULL,
-    password CHAR(30) NOT NULL,
+    user_passw CHAR(15) NOT NULL,
     name CHAR(50) NOT NULL,
     surname CHAR(50) NOT NULL,
     surname2 CHAR(50),

@@ -14,18 +14,20 @@ CREATE TABLE Orders (
 
 CREATE TABLE Products (
     --product CHAR(50) PRIMARY KEY NOT NULL,
-    --coffea CHAR(20) NOT NULL,
-    --varietal CHAR(30) NOT NULL,
-    --origin CHAR(15) NOT NULL,
-    --roasting CHAR(10) NOT NULL,
-    --decaf CHAR(12) NOT NULL,
-    --format CHAR(20) NOT NULL,
-    CONSTRAINT fk_format FOREIGN KEY (format) REFERENCES Formats(id)
 );
+--     --product CHAR(50) PRIMARY KEY NOT NULL,
+--     --coffea CHAR(20) NOT NULL,
+--     --varietal CHAR(30) NOT NULL,
+--     --origin CHAR(15) NOT NULL,
+--     --roasting CHAR(10) NOT NULL,
+--     --decaf CHAR(12) NOT NULL,
+--     --format CHAR(20) NOT NULL,
+--     CONSTRAINT fk_format FOREIGN KEY (format) REFERENCES Formats(id)
+-- );
 
 CREATE TABLE Formats(
     format_id NUMBER PRIMARY KEY NOT NULL,
-    composition CHAR(25) NOT NULL,
+    --roasting CHAR(10) NOT NULL,
     is_prepared BOOLEAN NOT NULL, --capsules or prepared
     is_volume BOOLEAN NOT NULL, --weight or volume
     --packaging CHAR(15) NOT NULL, --'each format in turn can be packaged differing amounts' == 'packaging description (amount of product)
@@ -125,7 +127,7 @@ CREATE TABLE Comments (
     --text CHAR(2000) NOT NULL,
     --score CHAR(1) NOT NULL,
     --likes CHAR(9) NOT NULL,
-    --endorsed CHAR(50)
+    --endorsed CHAR(50),
     CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES Clients(username),
     CONSTRAINT fk_product FOREIGN KEY (product) REFERENCES Products(product_name),
     CONSTRAINT fk_format FOREIGN KEY (format) REFERENCES Formats(format_id)
@@ -144,7 +146,7 @@ CREATE TABLE Credit_Cards(
 
 CREATE TABLE Clients (
     --username CHAR(30) PRIMARY KEY NOT NULL,
-    password CHAR(30) NOT NULL,
+    --user_passw CHAR(15) NOT NULL,
     name CHAR(50) NOT NULL,
     surname CHAR(50) NOT NULL,
     surname2 CHAR(50),

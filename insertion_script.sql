@@ -1,0 +1,1 @@
+--insertion script for lab 1
